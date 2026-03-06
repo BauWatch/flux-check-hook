@@ -102,7 +102,13 @@ def _validateFile(fileToValidate, repos):
 
             chartName = chartSpec["chart"]
             chartVersion = chartSpec["version"]
-            chartUrl = repos[chartSpec["sourceRef"]["name"]]
+            try:
+                chartUrl = repos[chartSpec["sourceRef"]["name"]]
+            except KeyError:
+                _collectErrors(
+                    {"source": f"'{fileToValidate}'", "message": f"No such HelmRepository {chartSpec["sourceRef"]["name"]}"}
+                )
+                continue
 
             with tempfile.TemporaryDirectory() as tmpDir:
                 with open(path.join(tmpDir, "values.yaml"), "w") as valuesFile:
